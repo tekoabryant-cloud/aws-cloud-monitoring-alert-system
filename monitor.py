@@ -29,6 +29,7 @@ for reservation in instances["Reservations"]:
     for instance in reservation["Instances"]:
         print(f"Instance ID: {instance['InstanceId']}")
         print(f"State: {instance['State']['Name']}")
-
-        if instance["State"]["Name"] != "running":
+        if instance["State"]["Name"] == "running":
+            print("OK: EC2 instance is running.")
+        else:
             print("ALERT: EC2 instance is not running!")
