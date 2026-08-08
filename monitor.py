@@ -28,6 +28,7 @@ instances = ec2.describe_instances()
 
 for reservation in instances["Reservations"]:
     for instance in reservation["Instances"]:
+        instance_id = instance["InstanceId"]
         print(f"Instance ID: {instance['InstanceId']}")
         print(f"State: {instance['State']['Name']}")
         if instance["State"]["Name"] == "running":
@@ -46,11 +47,11 @@ cpu_response = cloudwatch.get_metric_statistics(
     Namespace="AWS/EC2",
     MetricName="CPUUtilization",
     Dimensions=[
-        {
-            "Name": "InstanceId",
-            "Value": "i-074faa2bd67a296c6"
-        }
-    ],
+    {
+        "Name": "InstanceId",
+        "Value": instance_id
+    }
+],
     StartTime=start_time,
     EndTime=end_time,
     Period=300,
