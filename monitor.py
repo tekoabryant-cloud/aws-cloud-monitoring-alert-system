@@ -1,4 +1,5 @@
 import boto3
+from datetime import datetime, timedelta
 
 cloudwatch = boto3.client("cloudwatch")
 
@@ -33,3 +34,42 @@ for reservation in instances["Reservations"]:
             print("OK: EC2 instance is running.")
         else:
             print("ALERT: EC2 instance is not running!")
+            print("\nEC2 CPU Utilization")
+print("--------------------")
+
+cloudwatch = boto3.client("cloudwatch")
+
+end_time = datetime.utcnow()
+start_time = end_time - timedelta(minutes=10)
+
+cpu_response = cloudwatch.get_metric_statistics(
+    Namespace="AWS/EC2",
+    MetricName="CPUUtilization",
+    Dimensions=[
+        {
+            "Name": "InstanceId",
+            "Value": "i-074faa2bd67a296c6"
+        }
+    ],
+    StartTime=start_time,
+    EndTime=end_time,
+    Period=300,
+    Statistics=["Average"]
+)
+
+if cpu_response["Datapoints"]:
+    latest = sorted(
+        cpu_response["Datapoints"],
+        key=lambda x: x["Timestamp"],
+        reverse=True
+    )[0]
+
+    cpu = latest["Average"]
+    print(f"CPU Utilization: {cpu:.2f}%")
+
+    if cpu > 80:
+        print("ALERT: CPU utilization is high!")
+    else:
+        print("OK: CPU utilization is normal.")
+else:
+    print("No recent CPU data available.")
