@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 CPU_THRESHOLD = 80
 
 METRIC_THRESHOLD = 5
+
+overall_status = "OK"
 cloudwatch = boto3.client("cloudwatch")
 
 response = cloudwatch.list_metrics()
@@ -20,6 +22,7 @@ for metric in response["Metrics"]:
 
 if len(response["Metrics"]) > METRIC_THRESHOLD:
     print("ALERT: High number of metrics detected!")
+    overall_status = "ALERT"
 else:
     print("Status: Monitoring is normal.")
     print("\nEC2 CPU Monitoring")
@@ -38,6 +41,7 @@ for reservation in instances["Reservations"]:
             print("OK: EC2 instance is running.")
         else:
             print("ALERT: EC2 instance is not running!")
+            OVERALL_STATUS = "ALERT"
             print("\nEC2 CPU Utilization")
 print("--------------------")
 
@@ -77,3 +81,7 @@ if cpu_response["Datapoints"]:
         print("OK: CPU utilization is normal.")
 else:
     print("No recent CPU data available.")
+
+print("\nOverall Monitoring Status")
+print("-------------------------")
+print(f"Status: {overall_status}")
